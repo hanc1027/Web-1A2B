@@ -1,5 +1,5 @@
 <template>
-  <div>user</div>
+  <div>暫未開放。</div>
 </template>
 
 <script>

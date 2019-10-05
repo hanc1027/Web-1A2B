@@ -10,6 +10,7 @@
             id="ans"
             maxlength="4"
             @keyup.13="send"
+            type="tel"
           ></b-form-input>
         </b-col>
         <br />
@@ -19,18 +20,28 @@
       <b-col sm="6">
         <b-form-textarea
           id="textarea-auto-height"
-          placeholder="Auto height textarea"
-          :value="text"
+          :value="info_text"
           rows="3"
           max-rows="8"
           readonly
           v-if="count==0"
         ></b-form-textarea>
+
+        <b-form-textarea
+          id="textarea-auto-height"
+          :value="all_outome"
+          rows="3"
+          max-rows="5"
+          readonly
+          v-if="count!=0"
+          style="overflow:scroll;"
+        ></b-form-textarea>
       </b-col>
-      <div class="textarea" plaintext v-if="count!=0">
-        <ul v-for="item in all_outome">
-          <li>{{item}}</li>
-        </ul>
+
+      <div class="num-helper"  v-if="count!=0">
+        <b-form-group label="解題小幫手(可將不可能的數字勾選起來)">
+          <b-form-checkbox-group  :options="options" size="lg"></b-form-checkbox-group>
+        </b-form-group>
       </div>
     </center>
     <i class="fas fa-info-circle" @click="showTip"></i>
@@ -47,21 +58,34 @@ export default {
     return {
       count: 0,
       input_num: "",
-      text: `遊戲說明:
-    1.電腦已隨機出好一組4位數字
-    2.數字0不可置於最前面
+      numArray: [],
+      info_text: `遊戲說明:
+    1.猜出電腦設定的4位數字。
+    2.數字0不可置於最前面。
     3.當使用者輸入的數字&位置與答案相符時，便會顯示A
     4.當使用者輸入的數字與答案相符，但位置不符時，便顯示B
     5.例如，答案為1234 ，使用者輸入1048，提示框則會輸出1A1B`,
       ans: Number,
       ansArray: [],
-      all_outome: []
+      all_outome: "",
+      options: [
+        { text: "0" },
+        { text: "1" },
+        { text: "2" },
+        { text: "3" },
+        { text: "4" },
+        { text: "5" },
+        { text: "6" },
+        { text: "7" },
+        { text: "8" },
+        { text: "9" }
+      ]
     };
   },
   methods: {
     send() {
       if (this.checkNum()) {
-        console.log("Sucess");
+        this.verify(this.numArray);
       }
     },
     checkNum() {
@@ -74,19 +98,19 @@ export default {
         this.focusInputBox();
         return false;
       } else {
-        var numArray = this.input_num.split("");
-        numArray.forEach(element => {
+        this.numArray = this.input_num.split("");
+        this.numArray.forEach(element => {
           if (isNaN(element)) {
             alert("四位需皆為數字!");
             this.input_num = "";
             return false;
           }
         });
-        if(numArray[0] == 0){
-            alert("首位不可為0!");
-            return false
+        if (this.numArray[0] == 0) {
+          alert("首位不可為0!");
+          return false;
         }
-        this.verify(numArray);
+        return true;
       }
     },
     verify(user_ans) {
@@ -130,17 +154,16 @@ export default {
         }
 
         this.count++;
-        this.all_outome.push(
+        this.all_outome +=
           "您第" +
-            this.count.toString() +
-            "次輸入:" +
-            this.input_num +
-            "   [" +
-            u.toString() +
-            "A" +
-            (u1 - u).toString() +
-            "B]"
-        );
+          this.count.toString() +
+          "次輸入:" +
+          this.input_num +
+          "   [" +
+          u.toString() +
+          "A" +
+          (u1 - u).toString() +
+          "B]\n";
         this.input_num = "";
         this.focusInputBox();
       }
@@ -156,19 +179,27 @@ export default {
       this.ansArray[1] = parseInt((rannum / 100) % 10); //取答案百位的數字
       this.ansArray[2] = parseInt((rannum / 10) % 10); //取答案十位的數字
       this.ansArray[3] = parseInt(rannum % 10); //取答案個位的數字
+
+      //確保答案的4個位數皆不會重複
+      for (var i = 0; i < 4; i++) {
+        for (var j = i + 1; j < 4; j++) {
+          if (this.ansArray[i] == this.ansArray[j]) {
+            this.generateAns();
+          }
+        }
+      }
     },
     focusInputBox() {
       document.getElementById("ans").focus();
     },
     showTip() {
-      alert(this.text);
+      alert(this.info_text);
     }
   },
   mounted() {
     this.generateAns();
     //   window.onunload = ()=>{alert(`下次再見囉！`)}
     //   document.addEventListener("onunload",()=>{alert(`下次再見囉！`)})
-    console.log(this.ansArray);
   }
 };
 </script>
@@ -189,13 +220,13 @@ export default {
   border: 1.5px black solid;
   height: 30%;
 }
-ul {
-  list-style: none;
-}
 .fa-info-circle {
   float: right;
   color: rgb(235, 198, 48);
   font-size: 40px;
   padding: 15px;
+}
+.num-helper {
+  margin: 10px;
 }
 </style>
