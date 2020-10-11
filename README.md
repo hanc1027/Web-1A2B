@@ -1,6 +1,4 @@
-# web_1a2b
-
-# 一項益智遊戲的開發
+# 1A2B益智遊戲 網頁版開發
 
 ## Project setup
 ```
@@ -16,16 +14,3 @@ npm run serve
 ```
 npm run build
 ```
-
-### Run your tests
-```
-npm run test
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
